@@ -35,8 +35,8 @@ namespace ChessManager.Controllers
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     BirthDate = user.BirthDate,
-                    Gender = user.Gender, // Pobranie płci z obiektu użytkownika
-                    Role = roles.FirstOrDefault() ?? "No Role"
+                    Gender = user.Gender,
+                    Role = roles.First()
                 });
             }
 
@@ -63,7 +63,7 @@ namespace ChessManager.Controllers
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     BirthDate = model.BirthDate,
-                    Gender = model.Gender // Użycie Gender z modelu
+                    Gender = model.Gender
                 };
 
                 var result = await _userManager.CreateAsync(user);

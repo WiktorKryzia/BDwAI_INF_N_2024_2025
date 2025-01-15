@@ -18,19 +18,23 @@ public enum Gender
 // Add profile data for application users by adding properties to the ApplicationUser class
 public class ApplicationUser : IdentityUser
 {
-    [Required]
-    [MaxLength(255)]
-    public required string FirstName { get; set; }
+    [Required(ErrorMessage = "Email is required.")]
+    [EmailAddress]
+    public override string Email { get; set; }
 
-    [Required]
-    [MaxLength(255)]
-    public required string LastName { get; set; }
+    [Required(ErrorMessage = "First name is required.")]
+    [MaxLength(255, ErrorMessage = "Max 255 characters.")]
+    public string FirstName { get; set; }
 
-    [Required]
-    public required DateTime BirthDate { get; set; }
+    [Required(ErrorMessage = "Last name is required.")]
+    [MaxLength(255, ErrorMessage = "Max 255 characters.")]
+    public string LastName { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "Birth date is required.")]
+    public DateTime BirthDate { get; set; }
+
+    [Required(ErrorMessage = "Gender is required.")]
     [Column(TypeName = "varchar(6)")]
-    public required Gender Gender { get; set; }
+    public Gender Gender { get; set; }
 }
 

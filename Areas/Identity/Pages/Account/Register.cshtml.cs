@@ -70,35 +70,8 @@ namespace ChessManager.Areas.Identity.Pages.Account
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public class InputModel
+        public class InputModel : ApplicationUser
         {
-            [Required]
-            [Display(Name = "FirstName")]
-            [StringLength(255, ErrorMessage = "max 255.")]
-            public string FirstName { get; set; }
-
-            [Required]
-            [Display(Name = "LastName")]
-            [StringLength(255, ErrorMessage = "max 255.")]
-            public string LastName { get; set; }
-
-            [Required(ErrorMessage = "Birth Date is required.")]
-            [DataType(DataType.Date)]
-            [Display(Name = "Birth Date")]
-            public DateTime BirthDate { get; set; }
-
-            [Required(ErrorMessage = "Gender is required.")]
-            [Display(Name = "Gender")]
-            public Gender Gender { get; set; }
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [EmailAddress]
-            [Display(Name = "Email")]
-            public string Email { get; set; }
-
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
