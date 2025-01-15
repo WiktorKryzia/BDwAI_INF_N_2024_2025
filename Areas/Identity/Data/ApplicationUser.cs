@@ -11,7 +11,8 @@ namespace ChessManager.Areas.Identity.Data;
 public enum Gender
 {
     Male,
-    Female
+    Female,
+    Other
 }
 
 // Add profile data for application users by adding properties to the ApplicationUser class

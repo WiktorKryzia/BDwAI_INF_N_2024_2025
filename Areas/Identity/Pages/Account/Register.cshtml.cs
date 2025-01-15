@@ -82,6 +82,14 @@ namespace ChessManager.Areas.Identity.Pages.Account
             [StringLength(255, ErrorMessage = "max 255.")]
             public string LastName { get; set; }
 
+            [Required(ErrorMessage = "Birth Date is required.")]
+            [DataType(DataType.Date)]
+            [Display(Name = "Birth Date")]
+            public DateTime BirthDate { get; set; }
+
+            [Required(ErrorMessage = "Gender is required.")]
+            [Display(Name = "Gender")]
+            public Gender Gender { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -128,6 +136,8 @@ namespace ChessManager.Areas.Identity.Pages.Account
 
                 user.FirstName = Input.FirstName;
                 user.LastName = Input.LastName;
+                user.BirthDate = Input.BirthDate;
+                user.Gender = Input.Gender;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);

@@ -1,7 +1,6 @@
 ﻿using ChessManager.Areas.Identity.Data;
 using ChessManager.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -32,86 +31,70 @@ namespace ChessManager.Controllers
                 usersWithRole.Add(new UserWithRole
                 {
                     Id = user.Id,
-                    UserName = user.UserName,
                     Email = user.Email,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     BirthDate = user.BirthDate,
-                    Gender = user.Gender,
-                    Role = roles.First()
+                    Gender = user.Gender, // Pobranie płci z obiektu użytkownika
+                    Role = roles.FirstOrDefault() ?? "No Role"
                 });
             }
 
             return View(usersWithRole);
         }
 
-        // GET: UserController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
         // GET: UserController/Create
-        public ActionResult Create()
+        public IActionResult Create()
         {
-            return View();
+            return View(new UserWithRole());
         }
 
         // POST: UserController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create(UserWithRole model)
         {
-            try
+            if (ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    BirthDate = model.BirthDate,
+                    Gender = model.Gender // Użycie Gender z modelu
+                };
 
-        // GET: UserController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
+                var result = await _userManager.CreateAsync(user);
 
-        // POST: UserController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+                if (result.Succeeded)
+                {
+                    if (!string.IsNullOrEmpty(model.Role))
+                    {
+                        var roleExists = await _roleManager.RoleExistsAsync(model.Role);
+                        if (roleExists)
+                        {
+                            await _userManager.AddToRoleAsync(user, model.Role);
+                        }
+                        else
+                        {
+                            ModelState.AddModelError(string.Empty, $"The role '{model.Role}' does not exist.");
+                            return View(model);
+                        }
+                    }
 
-        // GET: UserController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
+                    // Przekierowanie na widok Index
+                    return RedirectToAction(nameof(Index));
+                }
 
-        // POST: UserController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
             }
-            catch
-            {
-                return View();
-            }
+
+            return View(model);
         }
     }
 }
