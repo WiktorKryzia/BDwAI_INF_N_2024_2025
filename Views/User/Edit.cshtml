@@ -1,12 +1,13 @@
 ﻿@model ChessManager.Models.UserWithRole
 
 @{
-    ViewData["Title"] = "Create New User";
+    ViewData["Title"] = "Edit User";
 }
 
-<h1>Create New User</h1>
+<h1>Edit User</h1>
 
-<form asp-action="Create" method="post">
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
     <div class="form-group">
         <label asp-for="Email" class="control-label"></label>
         <input asp-for="Email" class="form-control" />
@@ -39,15 +40,13 @@
     <div class="form-group">
         <label asp-for="Role" class="control-label"></label>
         <select asp-for="Role" class="form-control">
-            <option value="Arbiter" selected>Arbiter</option>
+            <option value="Arbiter">Arbiter</option>
             <option value="Player">Player</option>
         </select>
         <span asp-validation-for="Role" class="text-danger"></span>
     </div>
-    <div class="form-group">
-        <input type="submit" value="Create" class="btn btn-primary" />
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
 
 @section Scripts {
