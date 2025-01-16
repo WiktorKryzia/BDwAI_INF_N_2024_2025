@@ -119,6 +119,9 @@ namespace ChessManager.Migrations
                     b.Property<int>("BoardNumber")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PlayerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Result")
                         .HasColumnType("varchar(7)");
 
@@ -131,6 +134,8 @@ namespace ChessManager.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BlackPlayerId");
+
+                    b.HasIndex("PlayerId");
 
                     b.HasIndex("RoundId");
 
@@ -146,9 +151,6 @@ namespace ChessManager.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsAccepted")
-                        .HasColumnType("bit");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
@@ -231,6 +233,9 @@ namespace ChessManager.Migrations
 
                     b.Property<DateOnly>("StartDate")
                         .HasColumnType("date");
+
+                    b.Property<int>("TotalRounds")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -384,6 +389,10 @@ namespace ChessManager.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ChessManager.Models.Player", null)
+                        .WithMany("Matches")
+                        .HasForeignKey("PlayerId");
+
                     b.HasOne("ChessManager.Models.Round", "Round")
                         .WithMany("Matches")
                         .HasForeignKey("RoundId")
@@ -493,6 +502,11 @@ namespace ChessManager.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ChessManager.Models.Player", b =>
+                {
+                    b.Navigation("Matches");
                 });
 
             modelBuilder.Entity("ChessManager.Models.Round", b =>

@@ -1,7 +1,17 @@
-﻿@model ChessManager.Models.Tournament
+﻿@using Microsoft.AspNetCore.Identity
+@using ChessManager.Areas.Identity.Data
+
+@model ChessManager.Models.Tournament
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Details";
+
+    var isLoggedIn = SignInManager.IsSignedIn(User);
+    var isAdmin = User.IsInRole("Admin");
+    var user = isLoggedIn ? await UserManager.GetUserAsync(User) : null;
 }
 
 <h1>Details</h1>
@@ -23,12 +33,6 @@
             @Html.DisplayFor(model => model.Location)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaxPlayers)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaxPlayers)
-        </dd>
-        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.StartDate)
         </dt>
         <dd class = "col-sm-10">
@@ -40,21 +44,81 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.EndDate)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreationDate)
+        <dt class="col-sm-2">
+           Current round
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreationDate)
+        <dd class="col-sm-10">
+            @Model.Rounds.Count
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.TotalRounds)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TotalRounds)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Attendance)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Attendance)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Arbiter)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Arbiter.Id)
+            @Html.DisplayFor(model => model.Arbiter.Name)
         </dd>
     </dl>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="mt-5">
+    <a asp-action="Details" asp-route-id="@Model?.Id" class="btn btn-outline-primary">Details</a>
+    @if (Model.Rounds.Count > 0)
+    {
+    <a href="@Url.Action("Round", "Tournament", new { tournamentId = Model.Id, roundNumber = Model.Rounds.Count })" class="btn btn-outline-primary">Rounds</a>
+    <a href="@Url.Action("Result", "Tournament", new { tournamentId = Model.Id, roundNumber = Model.Rounds.Count })" class="btn btn-outline-primary">Results</a>
+    }
 </div>
+<div class="mt-5">
+    <h4>Players</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nr</th>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Rating</th>
+                @if (isLoggedIn && (isAdmin || user.Id == Model.ArbiterId) && Model.Rounds.Count == 0)
+                {
+                    <th></th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int n = 1;
+                foreach (var player in Model.Players)
+                {
+                    <tr>
+                        <td>@n</td>
+                        <td>@player.User.FirstName</td>
+                        <td>@player.User.LastName</td>
+                        <td>@player.Rating</td>
+                        @if (isLoggedIn && (isAdmin || user.Id == Model.ArbiterId) && Model.Rounds.Count == 0)
+                        {
+                            <td><a asp-action="DeletePlayer" asp-route-id="@player.Id">Delete</a></td>
+                        }
+                    </tr>
+                    n++;
+                }
+            }
+        </tbody>
+    </table>
+</div>
+@if (isLoggedIn && (isAdmin || user.Id == Model.ArbiterId))
+{
+<div class="mt-5">
+    <form asp-action="CreateNextRound" asp-route-tournamentId="@Model.Id" method="post">
+         <button type="submit" @(Model.Players == null || Model.Players.Count < 2 || Model.Rounds.Count == Model.TotalRounds ? "disabled" : "")>Create Next Round</button>
+    </form>
+</div>
+}

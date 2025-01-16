@@ -15,11 +15,11 @@ namespace ChessManager.Models
         [Required]
         [Range(0, 3000)]
         public int Rating { get; set; }
-        public bool IsAccepted { get; set; } = false;
 
         [ForeignKey("TournamentId")]
-        public Tournament Tournament { get; set; }
+        public Tournament? Tournament { get; set; }
         [ForeignKey("UserId")]
-        public ApplicationUser User { get; set; }
+        public ApplicationUser? User { get; set; }
+        public ICollection<Match> Matches { get; } = new List<Match>();
     }
 }

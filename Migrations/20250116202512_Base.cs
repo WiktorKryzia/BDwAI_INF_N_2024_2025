@@ -64,6 +64,7 @@ namespace ChessManager.Migrations
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Location = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     MaxPlayers = table.Column<int>(type: "int", nullable: false),
+                    TotalRounds = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EndDate = table.Column<DateOnly>(type: "date", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -89,8 +90,7 @@ namespace ChessManager.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TournamentId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Rating = table.Column<int>(type: "int", nullable: false),
-                    IsAccepted = table.Column<bool>(type: "bit", nullable: false)
+                    Rating = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -140,7 +140,8 @@ namespace ChessManager.Migrations
                     BoardNumber = table.Column<int>(type: "int", nullable: false),
                     WhitePlayerId = table.Column<int>(type: "int", nullable: false),
                     BlackPlayerId = table.Column<int>(type: "int", nullable: false),
-                    Result = table.Column<string>(type: "varchar(7)", nullable: true)
+                    Result = table.Column<string>(type: "varchar(7)", nullable: true),
+                    PlayerId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -151,6 +152,11 @@ namespace ChessManager.Migrations
                         principalTable: "Players",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Matches_Players_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "Players",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Matches_Players_WhitePlayerId",
                         column: x => x.WhitePlayerId,
@@ -169,6 +175,11 @@ namespace ChessManager.Migrations
                 name: "IX_Matches_BlackPlayerId",
                 table: "Matches",
                 column: "BlackPlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Matches_PlayerId",
+                table: "Matches",
+                column: "PlayerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Matches_RoundId",

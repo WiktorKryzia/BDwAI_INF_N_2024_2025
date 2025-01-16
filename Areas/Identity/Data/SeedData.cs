@@ -21,17 +21,21 @@ namespace ChessManager.Areas.Identity.Data
                     }
                 }
 
-                var adminUsers = new List<(string Email, string FirstName, string LastName, DateTime BirthDate, Gender Gender, string Password)>
+                var users = new List<(string Email, string FirstName, string LastName, DateTime BirthDate, Gender Gender, string Password, string Role)>
                 {
-                    ("igor@chessmanager.com", "Igor", "Kłopotowski", new DateTime(2001, 1, 1), Gender.Male, "Admin1234!"),
-                    ("wiktor@chessmanager.com", "Wiktor", "Kryzia", new DateTime(2001, 1, 1), Gender.Male, "Admin5678!")
+                    ("igor@chessmanager.com", "Igor", "Kłopotowski", new DateTime(2001, 1, 1), Gender.Male, "Admin1234!", "Admin"),
+                    ("wiktor@chessmanager.com", "Wiktor", "Kryzia", new DateTime(2001, 1, 1), Gender.Male, "Admin5678!", "Admin"),
+                    ("player1@chessmanager.com", "Player", "1", new DateTime(2001, 1, 1), Gender.Male, "qwerty", "Player"),
+                    ("player2@chessmanager.com", "Player", "2", new DateTime(2001, 1, 1), Gender.Female, "qwerty", "Player"),
+                    ("player3@chessmanager.com", "Player", "3", new DateTime(2001, 1, 1), Gender.Male, "qwerty!", "Player"),
+                    ("player4@chessmanager.com", "Player", "4", new DateTime(2001, 1, 1), Gender.Female, "qwerty!", "Player"),
                 };
 
-                foreach (var (email, firstName, lastName, birthDate, gender, password) in adminUsers)
+                foreach (var (email, firstName, lastName, birthDate, gender, password, role) in users)
                 {
                     if (await userManager.FindByEmailAsync(email) == null)
                     {
-                        var adminUser = new ApplicationUser
+                        var user = new ApplicationUser
                         {
                             UserName = email,
                             Email = email,
@@ -41,10 +45,10 @@ namespace ChessManager.Areas.Identity.Data
                             Gender = gender
                         };
 
-                        var result = await userManager.CreateAsync(adminUser, password);
+                        var result = await userManager.CreateAsync(user, password);
                         if (result.Succeeded)
                         {
-                            await userManager.AddToRoleAsync(adminUser, "Admin");
+                            await userManager.AddToRoleAsync(user, role);
                         }
                     }
                 }

@@ -1,7 +1,17 @@
-﻿@model IEnumerable<ChessManager.Models.Tournament>
+﻿@using Microsoft.AspNetCore.Identity
+@using ChessManager.Areas.Identity.Data
+
+@model IEnumerable<ChessManager.Models.Tournament>
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Tournaments";
+
+    var isLoggedIn = SignInManager.IsSignedIn(User);
+    var isAdmin = User.IsInRole("Admin");
+    var user = isLoggedIn ? await UserManager.GetUserAsync(User) : null;
 }
 
 <h1>Tournaments</h1>
@@ -25,6 +35,9 @@
                     @Html.DisplayNameFor(model => model.EndDate)
                 </th>
                 <th>
+                    Rounds
+                </th>
+                <th>
                     @Html.DisplayNameFor(model => model.Attendance)
                 </th>
                 <th>
@@ -38,7 +51,7 @@
         </thead>
         <tbody>
             @foreach (var item in Model) {
-                <tr>
+            <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
@@ -52,6 +65,9 @@
                     @Html.DisplayFor(modelItem => item.EndDate)
                 </td>
                 <td>
+                    @($"{item.Rounds.Count}/{item.TotalRounds}")
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.Attendance)
                 </td>
                 <td>
@@ -61,12 +77,29 @@
                     @Html.DisplayFor(modelItem => item.LastUpdated)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                @if (isLoggedIn && item.Rounds.Count == 0 && !item.Players.Any(p => p.UserId == user.Id))
+                {
+                    <text>
+                        | <a asp-action="SignUp" asp-route-id="@item.Id">Sign Up</a>
+                    </text>
+                }
+                else if (isLoggedIn && item.Rounds.Count == 0)
+                {
+                    <text>
+                        | <a asp-action="SignOut" asp-route-id="@item.Id">Sign Out</a>
+                    </text>
+                }
+                @if (isLoggedIn && (isAdmin || user.Id == item.ArbiterId))
+                {
+                    <text>
+                         | <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </text>
+                }
                 </td>
             </tr>
-    }
+            }
         </tbody>
     </table>
 }

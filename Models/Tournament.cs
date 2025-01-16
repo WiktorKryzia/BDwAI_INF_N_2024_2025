@@ -19,6 +19,10 @@ namespace ChessManager.Models
         [Display(Name = "Max players")]
         public int MaxPlayers { get; set; }
         [Required]
+        [Range(1, 24)]
+        [Display(Name = "Total rounds")]
+        public int TotalRounds { get; set; }
+        [Required]
         [Display(Name = "Start date")]
         public DateOnly StartDate { get; set; }
         [Required]

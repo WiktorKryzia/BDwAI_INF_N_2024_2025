@@ -1,0 +1,55 @@
+﻿@model ChessManager.Models.RoundResultsViewData
+
+@{
+    ViewData["Title"] = "Results";
+}
+
+<h1>Round @Model.RoundNumber - Results</h1>
+
+<div class="d-flex justify-content-center align-items-center">
+    @for (int i = 1; i <= Model.CurrentRound; i++)
+    {
+        <a href="@Url.Action("Result", "Tournament", new { tournamentId = Model.TournamentId, roundNumber = i })" class="btn btn-link @((i == Model.RoundNumber) ? "fw-bold text-success" : "")">
+            Round @i
+        </a>
+
+        @if (i < Model.CurrentRound)
+        {
+            <span class="mx-2">|</span>
+        }
+    }
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>First name</th>
+            <th>Last name</th>
+            <th>Rating</th>
+            <th>Total Points</th>
+        </tr>
+    </thead>
+    <tbody>
+    @{
+        int rank = 1;
+        foreach (var playerResult in Model.Results)
+        {
+            <tr>
+                <td>@rank</td>
+                <td>@playerResult.FirstName</td>
+                <td>@playerResult.LastName</td>
+                <td>@playerResult.Rating</td>
+                <td>@playerResult.TotalPoints</td>
+            </tr>
+            rank++;
+        }
+    }
+    </tbody>
+</table>
+
+<div class="mt-5">
+    <a asp-action="Details" asp-route-id="@Model.TournamentId" class="btn btn-outline-primary">Details</a>
+    <a href="@Url.Action("Round", "Tournament", new { tournamentId = Model.TournamentId, roundNumber = Model.CurrentRound })" class="btn btn-outline-primary">Rounds</a>
+    <a href="@Url.Action("Result", "Tournament", new { tournamentId = Model.TournamentId, roundNumber = Model.CurrentRound })" class="btn btn-outline-primary">Results</a>
+</div>
