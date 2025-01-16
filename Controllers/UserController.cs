@@ -46,56 +46,68 @@ namespace ChessManager.Controllers
         // GET: UserController/Create
         public IActionResult Create()
         {
-            return View(new UserWithRole());
+            return View(new UserWithRoleAndPassword());
         }
 
         // POST: UserController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(UserWithRole model)
+        public async Task<IActionResult> Create(UserWithRoleAndPassword model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var user = new ApplicationUser
-                {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    BirthDate = model.BirthDate,
-                    Gender = model.Gender
-                };
+                return View(model);
+            }
 
-                var result = await _userManager.CreateAsync(user);
+            var currentUser = await _userManager.GetUserAsync(User);
+            var currentUserRoles = await _userManager.GetRolesAsync(currentUser);
 
-                if (result.Succeeded)
+            // Sprawdzanie, czy obecny użytkownik ma uprawnienia do tworzenia konta admina
+            if (model.Role == "Admin" && !currentUserRoles.Contains("Admin"))
+            {
+                ModelState.AddModelError(string.Empty, "Only admins can create accounts with the Admin role.");
+                return View(model);
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                BirthDate = model.BirthDate,
+                Gender = model.Gender
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+                if (!string.IsNullOrEmpty(model.Role))
                 {
-                    if (!string.IsNullOrEmpty(model.Role))
+                    var roleExists = await _roleManager.RoleExistsAsync(model.Role);
+                    if (roleExists)
                     {
-                        var roleExists = await _roleManager.RoleExistsAsync(model.Role);
-                        if (roleExists)
-                        {
-                            await _userManager.AddToRoleAsync(user, model.Role);
-                        }
-                        else
-                        {
-                            ModelState.AddModelError(string.Empty, $"The role '{model.Role}' does not exist.");
-                            return View(model);
-                        }
+                        await _userManager.AddToRoleAsync(user, model.Role);
                     }
-
-                    // Przekierowanie na widok Index
-                    return RedirectToAction(nameof(Index));
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, $"The role '{model.Role}' does not exist.");
+                        return View(model);
+                    }
                 }
 
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
+                return RedirectToAction(nameof(Index));
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
             }
 
             return View(model);
         }
+
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)

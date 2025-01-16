@@ -1,8 +1,4 @@
-﻿@model ChessManager.Models.UserWithRole
-
-@{
-    ViewData["Title"] = "Create New User";
-}
+﻿@model ChessManager.Models.UserWithRoleAndPassword
 
 <h1>Create New User</h1>
 
@@ -12,21 +8,25 @@
         <input asp-for="Email" class="form-control" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label asp-for="FirstName" class="control-label"></label>
         <input asp-for="FirstName" class="form-control" />
         <span asp-validation-for="FirstName" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label asp-for="LastName" class="control-label"></label>
         <input asp-for="LastName" class="form-control" />
         <span asp-validation-for="LastName" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label asp-for="BirthDate" class="control-label"></label>
         <input asp-for="BirthDate" type="date" class="form-control" />
         <span asp-validation-for="BirthDate" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label asp-for="Gender" class="control-label"></label>
         <select asp-for="Gender" class="form-control">
@@ -36,16 +36,26 @@
         </select>
         <span asp-validation-for="Gender" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label asp-for="Role" class="control-label"></label>
         <select asp-for="Role" class="form-control">
-            <option value="Arbiter" selected>Arbiter</option>
+            <option value="Admin">Admin</option>
+            <option value="Arbiter">Arbiter</option>
             <option value="Player">Player</option>
         </select>
         <span asp-validation-for="Role" class="text-danger"></span>
     </div>
+
+
+    <div class="form-group">
+        <label asp-for="Password" class="control-label"></label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
     <div class="form-group mt-3">
-        <input type="submit" value="Create" class="btn btn-primary" />
+        <button type="submit" class="btn btn-primary">Create</button>
         <a asp-action="Index" class="btn btn-secondary">Cancel</a>
     </div>
 </form>
