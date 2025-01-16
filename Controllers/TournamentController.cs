@@ -50,6 +50,7 @@ namespace ChessManager.Controllers
             return View(tournament);
         }
 
+        [AllowAnonymous]
         [Route("Tournament/{tournamentId}/Round/{roundNumber}")]
         public async Task<IActionResult> Round(int tournamentId, int roundNumber)
         {
@@ -80,7 +81,7 @@ namespace ChessManager.Controllers
 
             return View(round);
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> SaveResults(Dictionary<int, string> matchResults)
         {
@@ -108,6 +109,7 @@ namespace ChessManager.Controllers
             return Redirect(referer);
         }
 
+        [AllowAnonymous]
         [Route("Tournament/{tournamentId}/Result/{roundNumber}")]
         public async Task<IActionResult> Result(int tournamentId, int roundNumber)
         {
@@ -158,6 +160,7 @@ namespace ChessManager.Controllers
             return 0;
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateNextRound(int tournamentId)
         {
@@ -216,7 +219,7 @@ namespace ChessManager.Controllers
             return RedirectToAction("Round", new { tournamentId = tournamentId, roundNumber = nextRoundNumber });
         }
 
-
+        [Authorize]
         // GET: Tournament/SignUp/5
         public async Task<IActionResult> SignUp(int? id)
         {
@@ -244,6 +247,7 @@ namespace ChessManager.Controllers
         // POST: Tournament/SignUp
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignUp([Bind("Rating,UserId,TournamentId,User,Tournament")] Player player)
@@ -269,6 +273,7 @@ namespace ChessManager.Controllers
         }
 
         // GET: Tournament/SignOut/5
+        [Authorize]
         public async Task<IActionResult> SignOut(int? id)
         {
             if (id == null)
@@ -286,6 +291,7 @@ namespace ChessManager.Controllers
         }
 
         // POST: Tournament/SignOut/5
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SignOut(int id)
@@ -300,6 +306,7 @@ namespace ChessManager.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize]
         public async Task<IActionResult> DeletePlayer(int id)
         {
             var player = await _context.Players.FirstOrDefaultAsync(p => p.Id == id);
@@ -312,6 +319,7 @@ namespace ChessManager.Controllers
             return RedirectToAction("Details", "Tournament", new { id = player.TournamentId });
         }
 
+        [Authorize(Roles = "Admin,Arbiter")]
         // GET: Tournament/Create
         public IActionResult Create()
         {
@@ -323,6 +331,7 @@ namespace ChessManager.Controllers
         // POST: Tournament/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin,Arbiter")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Location,TotalRounds,MaxPlayers,StartDate,EndDate,CreationDate,ArbiterId")] Tournament tournament)
@@ -339,6 +348,7 @@ namespace ChessManager.Controllers
             return View(tournament);
         }
 
+        [Authorize(Roles = "Admin,Arbiter")]
         // GET: Tournament/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -361,6 +371,7 @@ namespace ChessManager.Controllers
         // POST: Tournament/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin,Arbiter")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Location,TotalRounds,MaxPlayers,StartDate,EndDate,CreationDate,ArbiterId")] Tournament tournament)
@@ -397,6 +408,7 @@ namespace ChessManager.Controllers
         }
 
         // GET: Tournament/Delete/5
+        [Authorize(Roles = "Admin,Arbiter")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -416,6 +428,7 @@ namespace ChessManager.Controllers
         }
 
         // POST: Tournament/Delete/5
+        [Authorize(Roles = "Admin,Arbiter")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
