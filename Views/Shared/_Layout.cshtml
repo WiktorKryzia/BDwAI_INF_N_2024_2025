@@ -1,11 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using ChessManager.Areas.Identity.Data
 
-@inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
 @{
-    var user = await UserManager.GetUserAsync(User);
+    var user = (User?.Identity?.IsAuthenticated ?? false) ? await UserManager.GetUserAsync(User) : null;
     var isAdmin = user != null && await UserManager.IsInRoleAsync(user, "Admin");
     var isArbiter = user != null && await UserManager.IsInRoleAsync(user, "Arbiter");
     var isNotPlayer = isAdmin || isArbiter;

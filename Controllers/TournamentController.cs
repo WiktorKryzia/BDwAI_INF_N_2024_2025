@@ -8,24 +8,27 @@ using Microsoft.EntityFrameworkCore;
 using ChessManager.Areas.Identity.Data;
 using ChessManager.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace ChessManager.Controllers
 {
     public class TournamentController : Controller
     {
         private readonly ApplicationDBContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public TournamentController(ApplicationDBContext context)
+        public TournamentController(ApplicationDBContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         [AllowAnonymous]
         // GET: Tournament
         public async Task<IActionResult> Index()
         {
-            var applicationDBContext = _context.Tournaments.Include(t => t.Arbiter);
-            return View(await applicationDBContext.ToListAsync());
+            var model = await _context.Tournaments.Include(t => t.Arbiter).Include(t => t.Players).ToListAsync();
+            return View(model);
         }
 
         // GET: Tournament/Details/5
@@ -38,6 +41,7 @@ namespace ChessManager.Controllers
 
             var tournament = await _context.Tournaments
                 .Include(t => t.Arbiter)
+                .Include(t => t.Players)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (tournament == null)
             {
@@ -50,7 +54,8 @@ namespace ChessManager.Controllers
         // GET: Tournament/Create
         public IActionResult Create()
         {
-            ViewData["ArbiterId"] = new SelectList(_context.Users, "Id", "Id");
+            SetArbitersList();
+
             return View();
         }
 
@@ -67,7 +72,7 @@ namespace ChessManager.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ArbiterId"] = new SelectList(_context.Users, "Id", "Id", tournament.ArbiterId);
+
             return View(tournament);
         }
 
@@ -84,7 +89,9 @@ namespace ChessManager.Controllers
             {
                 return NotFound();
             }
-            ViewData["ArbiterId"] = new SelectList(_context.Users, "Id", "Id", tournament.ArbiterId);
+
+            SetArbitersList();
+
             return View(tournament);
         }
 
@@ -120,7 +127,9 @@ namespace ChessManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ArbiterId"] = new SelectList(_context.Users, "Id", "Id", tournament.ArbiterId);
+
+            SetArbitersList();
+
             return View(tournament);
         }
 
@@ -161,6 +170,40 @@ namespace ChessManager.Controllers
         private bool TournamentExists(int id)
         {
             return _context.Tournaments.Any(e => e.Id == id);
+        }
+
+        private void SetArbitersList()
+        {
+            var currentUserId = _userManager.GetUserId(User);
+
+            var isAdmin = _context.UserRoles
+                .Join(_context.Roles,
+                      userRole => userRole.RoleId,
+                      role => role.Id,
+                      (userRole, role) => new { userRole.UserId, role.Name })
+                .Any(ur => ur.UserId == currentUserId && ur.Name == "Admin");
+
+            if (isAdmin)
+            {
+                var arbiters = _context.Users
+                .Where(u => !_context.UserRoles
+                .Join(_context.Roles,
+                      userRole => userRole.RoleId,
+                      role => role.Id,
+                      (userRole, role) => new { userRole.UserId, role.Name })
+                .Any(ur => ur.UserId == u.Id && ur.Name == "Player"))
+                .Select(a => new
+                {
+                    ArbiterId = a.Id,
+                    FullName = $"{a.FirstName} {a.LastName}"
+                })
+                .ToList();
+                ViewData["ArbiterId"] = new SelectList(arbiters, "ArbiterId", "FullName");
+            }
+            else
+            {
+                ViewBag.ArbiterId = currentUserId;
+            }
         }
     }
 }

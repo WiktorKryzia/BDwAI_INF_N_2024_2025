@@ -1,10 +1,7 @@
-﻿using ChessManager.Areas.Identity.Data;
-using ChessManager.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using ChessManager.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection.Emit;
 
 namespace ChessManager.Areas.Identity.Data;
 
@@ -17,6 +14,8 @@ public class ApplicationDBContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<Tournament> Tournaments { get; set; }
     public DbSet<Player> Players { get; set; }
+    public DbSet<Round> Rounds { get; set; }
+    public DbSet<Match> Matches { get; set; }
 
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
@@ -32,21 +31,32 @@ public class ApplicationDBContext : IdentityDbContext<ApplicationUser>
         // Add your customizations after calling base.OnModelCreating(builder);
 
         builder.Entity<ApplicationUser>()
-           .Property(p => p.Gender)
-           .HasConversion(
-               v => v.ToString(),
-               v => (Gender)Enum.Parse(typeof(Gender), v));
+            .Property(p => p.Gender)
+            .HasConversion(
+                v => v.ToString(),
+                v => (Gender)Enum.Parse(typeof(Gender), v));
 
-        builder.Entity<Player>()
-            .HasOne(p => p.Tournament)
-            .WithMany(t => t.Players)
-            .HasForeignKey(p => p.TournamentId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<Tournament>()
+            .Property(u => u.LastUpdated)
+            .ValueGeneratedOnAddOrUpdate()
+            .HasDefaultValueSql("GETDATE()");
 
         builder.Entity<Player>()
             .HasOne(p => p.User)
             .WithMany()
             .HasForeignKey(p => p.UserId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Match>()
+            .HasOne(m => m.WhitePlayer)
+            .WithMany()
+            .HasForeignKey(m => m.WhitePlayerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Match>()
+            .HasOne(m => m.BlackPlayer)
+            .WithMany()
+            .HasForeignKey(m => m.BlackPlayerId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

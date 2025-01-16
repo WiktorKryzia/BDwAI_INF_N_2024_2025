@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 
 namespace ChessManager.Areas.Identity.Data;
 
@@ -22,15 +18,27 @@ public class ApplicationUser : IdentityUser
     [EmailAddress]
     public override string Email { get; set; }
 
+    [Display(Name = "Phone number")]
+    public override string? PhoneNumber { get; set; }
+
     [Required(ErrorMessage = "First name is required.")]
     [MaxLength(255, ErrorMessage = "Max 255 characters.")]
+    [Display(Name = "First name")]
     public string FirstName { get; set; }
 
     [Required(ErrorMessage = "Last name is required.")]
     [MaxLength(255, ErrorMessage = "Max 255 characters.")]
+    [Display(Name = "Last name")]
     public string LastName { get; set; }
 
+    [NotMapped]
+    public string Name
+    {
+        get { return $"{FirstName} {LastName}"; }
+    }
+
     [Required(ErrorMessage = "Birth date is required.")]
+    [Display(Name = "Birth date")]
     public DateTime BirthDate { get; set; }
 
     [Required(ErrorMessage = "Gender is required.")]

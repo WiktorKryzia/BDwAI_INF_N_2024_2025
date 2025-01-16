@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChessManager.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20250114202422_Base")]
+    [Migration("20250116161356_Base")]
     partial class Base
     {
         /// <inheritdoc />
@@ -41,6 +41,7 @@ namespace ChessManager.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -107,6 +108,40 @@ namespace ChessManager.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("ChessManager.Models.Match", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BlackPlayerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BoardNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Result")
+                        .HasColumnType("varchar(7)");
+
+                    b.Property<int>("RoundId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WhitePlayerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlackPlayerId");
+
+                    b.HasIndex("RoundId");
+
+                    b.HasIndex("WhitePlayerId");
+
+                    b.ToTable("Matches");
+                });
+
             modelBuilder.Entity("ChessManager.Models.Player", b =>
                 {
                     b.Property<int>("Id")
@@ -137,6 +172,30 @@ namespace ChessManager.Migrations
                     b.ToTable("Players");
                 });
 
+            modelBuilder.Entity("ChessManager.Models.Round", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("RoundNumber")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan?>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("TournamentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TournamentId");
+
+                    b.ToTable("Rounds");
+                });
+
             modelBuilder.Entity("ChessManager.Models.Tournament", b =>
                 {
                     b.Property<int>("Id")
@@ -152,8 +211,13 @@ namespace ChessManager.Migrations
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("Location")
                         .IsRequired()
@@ -168,8 +232,8 @@ namespace ChessManager.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
 
                     b.HasKey("Id");
 
@@ -315,6 +379,33 @@ namespace ChessManager.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ChessManager.Models.Match", b =>
+                {
+                    b.HasOne("ChessManager.Models.Player", "BlackPlayer")
+                        .WithMany()
+                        .HasForeignKey("BlackPlayerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ChessManager.Models.Round", "Round")
+                        .WithMany("Matches")
+                        .HasForeignKey("RoundId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ChessManager.Models.Player", "WhitePlayer")
+                        .WithMany()
+                        .HasForeignKey("WhitePlayerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("BlackPlayer");
+
+                    b.Navigation("Round");
+
+                    b.Navigation("WhitePlayer");
+                });
+
             modelBuilder.Entity("ChessManager.Models.Player", b =>
                 {
                     b.HasOne("ChessManager.Models.Tournament", "Tournament")
@@ -326,12 +417,23 @@ namespace ChessManager.Migrations
                     b.HasOne("ChessManager.Areas.Identity.Data.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Tournament");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ChessManager.Models.Round", b =>
+                {
+                    b.HasOne("ChessManager.Models.Tournament", "Tournament")
+                        .WithMany("Rounds")
+                        .HasForeignKey("TournamentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tournament");
                 });
 
             modelBuilder.Entity("ChessManager.Models.Tournament", b =>
@@ -396,9 +498,16 @@ namespace ChessManager.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ChessManager.Models.Round", b =>
+                {
+                    b.Navigation("Matches");
+                });
+
             modelBuilder.Entity("ChessManager.Models.Tournament", b =>
                 {
                     b.Navigation("Players");
+
+                    b.Navigation("Rounds");
                 });
 #pragma warning restore 612, 618
         }

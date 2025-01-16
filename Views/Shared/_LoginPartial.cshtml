@@ -8,7 +8,7 @@
     @if (SignInManager.IsSignedIn(User))
     {
         var user = await UserManager.GetUserAsync(User);
-        string fullName = user != null ? $"{user!.FirstName} {user!.LastName}" : "Unknown";
+        string fullName = user != null ? user.Name : "Unknown";
         
         <li class="nav-item">
             <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @fullName</a>

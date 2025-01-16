@@ -23,38 +23,37 @@
                 <span asp-validation-for="Location" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="MaxPlayers" class="control-label"></label>
+                <label asp-for="StartDate" class="control-label">Start date</label>
+                <input asp-for="StartDate" class="form-control" type="date" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndDate" class="control-label">End date</label>
+                <input asp-for="EndDate" class="form-control" type="date" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaxPlayers" class="control-label">Max players</label>
                 <input asp-for="MaxPlayers" class="form-control" />
                 <span asp-validation-for="MaxPlayers" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="StartDate" class="control-label"></label>
-                <input asp-for="StartDate" class="form-control" />
-                <span asp-validation-for="StartDate" class="text-danger"></span>
+            @if (User.IsInRole("Admin"))
+            {
+                <label asp-for="ArbiterId" class="control-label">Arbiter</label>
+                <select asp-for="ArbiterId" class="form-control" asp-items="ViewBag.ArbiterId"></select>
+            }
+            else
+            {
+                <input type="hidden" asp-for="ArbiterId" value="@ViewBag.ArbiterId" />
+            }
             </div>
-            <div class="form-group">
-                <label asp-for="EndDate" class="control-label"></label>
-                <input asp-for="EndDate" class="form-control" />
-                <span asp-validation-for="EndDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreationDate" class="control-label"></label>
-                <input asp-for="CreationDate" class="form-control" />
-                <span asp-validation-for="CreationDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ArbiterId" class="control-label"></label>
-                <select asp-for="ArbiterId" class ="form-control" asp-items="ViewBag.ArbiterId"></select>
-            </div>
-            <div class="form-group">
+            <div class="form-group mt-3">
                 <input type="submit" value="Create" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

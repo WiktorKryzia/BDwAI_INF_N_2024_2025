@@ -2,10 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
 using ChessManager.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -50,30 +46,9 @@ namespace ChessManager.Areas.Identity.Pages.Account.Manage
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public class InputModel
+        public class InputModel : ApplicationUser
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Phone]
-            [Display(Name = "Phone number")]
-            public string PhoneNumber { get; set; }
-            [Required]
-            [Display(Name = "First Name")]
-            public string FirstName { get; set; }
 
-            [Required]
-            [Display(Name = "Last Name")]
-            public string LastName { get; set; }
-
-            [DataType(DataType.Date)]
-            [Display(Name = "Birth Date")]
-            public DateTime? BirthDate { get; set; }
-
-            [Required]
-            [Display(Name = "Gender")]
-            public Gender Gender { get; set; }
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -141,7 +116,7 @@ namespace ChessManager.Areas.Identity.Pages.Account.Manage
 
             if (Input.BirthDate != user.BirthDate)
             {
-                user.BirthDate = (DateTime)Input.BirthDate;
+                user.BirthDate = Input.BirthDate;
             }
 
             if (Input.Gender != user.Gender)
